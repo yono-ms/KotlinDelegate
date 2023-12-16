@@ -66,4 +66,8 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    // Log
+    implementation("org.slf4j:slf4j-api:2.0.9")
+    implementation("com.github.tony19:logback-android:3.0.0")
 }

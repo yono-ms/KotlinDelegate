@@ -1,0 +1,33 @@
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://tony19.github.io/logback-android/xml"
+    xsi:schemaLocation="https://tony19.github.io/logback-android/xml https://cdn.jsdelivr.net/gh/tony19/logback-android/logback.xsd">
+
+    <property name="TAG" value="KotlinDelegate" />
+    <property name="LOG_DIR" value="/data/data/com.example.kotlindelegate/files/log" />
+
+    <appender name="logcat" class="ch.qos.logback.classic.android.LogcatAppender">
+        <tagEncoder>
+            <pattern>${TAG}</pattern>
+        </tagEncoder>
+        <encoder>
+            <pattern>[%thread] %logger{10} [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <lazy>true</lazy>
+        <file>${LOG_DIR}/app.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/app-%d{yyyyMMdd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="TRACE">
+        <appender-ref ref="logcat" />
+        <appender-ref ref="file" />
+    </root>
+</configuration>
