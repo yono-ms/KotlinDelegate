@@ -1,8 +1,6 @@
 package com.example.kotlindelegate
 
 import android.Manifest
-import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,22 +19,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
 import com.example.kotlindelegate.ui.theme.KotlinDelegateTheme
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import kotlin.coroutines.resumeWithException
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        val appLocation = AppLocation(getContext = { this.applicationContext })
         setContent {
             KotlinDelegateTheme {
                 // A surface container using the 'background' color from the theme
@@ -53,7 +47,7 @@ class MainActivity : ComponentActivity() {
                                 runCatching {
                                     val permission = getPermission()
                                     if (permission) {
-                                        getLocation()
+                                        appLocation.getLocation()
                                     } else {
                                         throw Error("denied.")
                                     }
@@ -113,32 +107,6 @@ class MainActivity : ComponentActivity() {
             )
         )
         logger.trace("suspendCancellableCoroutine END")
-    }
-
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun getLocation() = suspendCancellableCoroutine { continuation ->
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            throw Error("permission denied.")
-        }
-        fusedLocationProviderClient.lastLocation.addOnSuccessListener { location: Location? ->
-            logger.debug("location={}", location)
-            if (location == null) {
-                continuation.resumeWithException(Error("location is null"))
-            } else {
-                continuation.resume(location) {
-                    logger.warn("onCancellation")
-                }
-            }
-        }
     }
 }
 
